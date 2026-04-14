@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+dist/
+build/
+*.spec
+sat_config.json
+distinta_db.json
+crash_log.txt
+.env
+.venv/
+venv/
+ENV/
+env/
