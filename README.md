@@ -31,3 +31,30 @@ Per garantire una UI reattiva:
 1. Le chiamate limitate da "Networking I/O" non invocano mai `threading.Thread()`, il quale non comunica lo svuotamento del buffer del GIL al sistema operativo su Windows.
 2. Viene invocato esclusivamente il gestore Flet nativo: `self.app.page.run_thread()`.
 3. Gli aggiornamenti dei test dei Popup (dialoghi caricamento modale) sfruttano il servizio di notifica interna `page.pubsub.subscribe/send_all`. In questo modo Flet inserisce il repaint grafico in una queue asincrona pura aggirando i classici colli di bottiglia causati dalla libreria nativa `requests.get`.
+
+### Diagramma Sincronizzazione Modulare
+```mermaid
+sequenceDiagram
+    participant U as UI (Main Thread)
+    participant E as Flet Event Loop
+    participant B as Background Task (run_thread)
+    participant A as Server API (REST)
+    participant D as File System (JSON)
+
+    U->>E: Clic su "Sincronizza"
+    E->>B: Avvia _run_sync_logic()
+    loop Per ogni Dominio selezionato
+        B->>E: pubsub.send_all("[Staging]")
+        E-->>U: Aggiorna testo Overlay Dialog
+        B->>B: time.sleep(0.5) (Sfiato GIL)
+        B->>A: ApiClient.send_rest_get()
+        Note over B,A: Thread python in HTTP Wait.<br/>Il client Flet resta responsivo.
+        A-->>B: Ritornano i dati JSON Raw
+        B->>B: Decodifica e formatta in RAM
+        B->>E: pubsub.send_all("[Salvataggio]")
+        E-->>U: Aggiorna testo Overlay Dialog
+        B->>D: Merge e Salva su `distinta_db.json`
+    end
+    B->>E: Errori o Fine processo
+    E-->>U: Chiude Dialog e mostra UI Successo
+```
