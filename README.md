@@ -1,4 +1,4 @@
-# SAT (Sincronizzazione e Analisi Tool)
+# SAT (Solution Architect Tool)
 
 SAT è un'applicazione desktop stand-alone sviluppata parzialmente sopra il framework **Flet** (Python). Fornisce un'interfaccia utente moderna derivata da Flutter per la gestione, l'estrazione e l'analisi massiva dei Master Data aziendali.
 
