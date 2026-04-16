@@ -21,5 +21,5 @@ try:
         ft.run(main)
 
 except Exception as e:
-    with open("crash_log.txt", "w", encoding="utf-8") as f:
+    with open("log.txt", "a", encoding="utf-8") as f:
         f.write(f"FATAL ERROR:\n{traceback.format_exc()}\n")

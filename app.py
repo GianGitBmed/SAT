@@ -184,19 +184,42 @@ class SATApp:
         self.page.update()
 
     def log(self, message: str, level: str = "INFO"):
-        """Scrive nel terminale GUI e nella console standard."""
-        timestamp = datetime.datetime.now().strftime("%H:%M:%S")
+        """Scrive nel terminale GUI, nella console standard e su file log.txt"""
+        verbosity_level = self.config.get("verbosity", "INFO")
+        
+        levels = {"DEBUG": 10, "INFO": 20, "WARN": 30, "ERROR": 40}
+        curr_lvl = levels.get(level, 20)
+        max_lvl = levels.get(verbosity_level, 20)
+        
+        if curr_lvl < max_lvl:
+            return
+
+        # Millisecondi utilissimi per calcolare i colli di bottiglia e latenze GUI
+        timestamp = datetime.datetime.now().strftime("%H:%M:%S.%f")[:-3]
         log_line = f"[{timestamp}] [{level}] {message}"
         print(f"[SAT LOG] {log_line}")
+        
+        # Log sempre su file
+        try:
+            with open("log.txt", "a", encoding="utf-8") as f:
+                f.write(log_line + "\n")
+        except Exception:
+            pass
         
         color = ft.Colors.GREEN_400
         if level == "ERROR":
             color = ft.Colors.RED_400
         elif level == "WARN":
             color = ft.Colors.AMBER_400
+        elif level == "DEBUG":
+            color = ft.Colors.BLUE_GREY_400
 
         if hasattr(self, 'terminal_list'):
             self.terminal_list.controls.append(
                 ft.Text(log_line, color=color, font_family="Consolas", size=12)
             )
-            self.page.update()
+            # Auto-scroll terminale
+            try:
+                self.page.update()
+            except Exception:
+                pass

@@ -80,7 +80,7 @@ class CensimentoMassivoTab(ft.Container):
             dialog_title="Seleziona il Template Excel di Creazione"
         )
 
-    def on_file_picked(self, e: ft.FilePickerResultEvent):
+    def on_file_picked(self, e):
         if e.files and len(e.files) > 0:
             self.selected_filepath = e.files[0].path
             self.txt_file_path.value = os.path.basename(self.selected_filepath)
